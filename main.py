@@ -2,6 +2,7 @@ import time
 import os
 import ftputil
 import config
+import threading
 from ftputil import FTPHost
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -11,7 +12,7 @@ from watchdog.events import FileSystemEventHandler
 
 
 # 指定要监控的目录
-path_to_monitor = "D:\\workspace\\filesync"
+path_to_monitor = "E:\\WorkSpace\\filesync"
 
 
 
@@ -83,10 +84,23 @@ class CustomFileHandler(FileSystemEventHandler):
                     except ftputil.error.PermanentError as e:
                         pass
 
+aa = 0
+def sync():
+    with ftputil.FTPHost(config.host, config.user, config.password) as ftp:
+        entries = ftp.listdir("/")
+        
+
+    # global aa 
+    # aa += 1
+    # print("测试:{}".format(aa))
+    threading.Timer(5, sync).start()
 
 
 
 if __name__ == "__main__":
+
+    threading.Timer(5, sync).start()
+
     # 创建事件处理器
     event_handler = CustomFileHandler()
     # 创建观察者并设置事件处理器
@@ -94,6 +108,7 @@ if __name__ == "__main__":
     observer.schedule(event_handler, path=path_to_monitor, recursive=True)
     # 启动观察者
     observer.start()
+    print("开始")
     try:
         # 保持脚本运行，以便持续监控
         while True:
@@ -103,6 +118,7 @@ if __name__ == "__main__":
         observer.stop()
     # 等待观察者线程终止
     observer.join()
+    #print("this is ")
 
 
     
